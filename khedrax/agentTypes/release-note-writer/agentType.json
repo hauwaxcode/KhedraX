@@ -1,0 +1,6 @@
+{
+  "name": "release-note-writer",
+  "version": "1.0.0",
+  "defaultModules": ["github"],
+  "persona": { "presetName": "audience-focused-narrator" }
+}

@@ -1,0 +1,4 @@
+{
+  "flakyThreshold": 3,
+  "lookbackRuns": 10
+}

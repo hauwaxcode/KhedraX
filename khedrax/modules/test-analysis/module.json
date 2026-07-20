@@ -1,0 +1,12 @@
+{
+  "name": "test-analysis",
+  "version": "1.0.0",
+  "capabilities": [
+    "Parse structured test run output (pass/fail/skip counts, failure messages).",
+    "Identify flaky tests across multiple recent runs."
+  ],
+  "constraints": [
+    "Never mark a test as flaky based on a single failure.",
+    "Never hide a failing test from the summary regardless of its historical pass rate."
+  ]
+}

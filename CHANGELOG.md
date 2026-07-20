@@ -3,6 +3,14 @@
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct
 from KhedraX's own code release history.
 
+## v1.2 — Dogfood registry growth: generate KhedraX tooling agents
+
+- Work package: WP12
+- Added five new tooling agents to the registry, including four new agent types,
+  four new personas, and a new `test-analysis` module scaffold. Generated all
+  five tools via `createAgent()` in integration tests and confirmed that
+  `documentation-assistant` reused existing registry entries with no new data.
+
 ## v1.1 — Plugin ecosystem: external registry directories
 
 - Work package: WP11

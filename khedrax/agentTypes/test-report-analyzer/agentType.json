@@ -1,0 +1,6 @@
+{
+  "name": "test-report-analyzer",
+  "version": "1.0.0",
+  "defaultModules": ["test-analysis", "memory"],
+  "persona": { "presetName": "diagnostic-analyst" }
+}

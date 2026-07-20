@@ -1,0 +1,6 @@
+{
+  "name": "github-triage-assistant",
+  "version": "1.0.0",
+  "defaultModules": ["github", "memory"],
+  "persona": { "presetName": "efficient-triager" }
+}

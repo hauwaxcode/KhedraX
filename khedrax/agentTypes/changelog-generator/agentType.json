@@ -1,0 +1,6 @@
+{
+  "name": "changelog-generator",
+  "version": "1.0.0",
+  "defaultModules": ["github"],
+  "persona": { "presetName": "terse-technical-logger" }
+}
