@@ -55,6 +55,14 @@ inventing new constraints this project hasn't actually been following.
   Work Package #8 did with `detectExclusiveConflicts`) as long as observed
   behavior for every already-passing test and already-verified acceptance
   criterion is unchanged.
+- Adding a wholly new engine that sits *alongside* Generation Engine —
+  invoked as an additional step Workflow Engine sequences, not inserted
+  into Generation Engine's own fixed producer list — as long as it changes
+  neither Generation Engine's producer order nor any existing engine's
+  ownership boundary. This is different from "adding/removing a producer
+  engine" in §3: a new engine that Workflow Engine sequences as a second,
+  independent step is a peer of Generation Engine, not a change to what
+  Generation Engine itself orchestrates.
 
 A v1.x bump (v1.0 → v1.1, v1.1 → v1.2, ...) happens whenever a change in
 this category lands. It's a version-number increment and a one-line
@@ -102,4 +110,3 @@ into an unrelated change.
   that's treated as a defect in the work package, the same as any other
   bug found during review — not retroactively approved because it already
   shipped.
-
