@@ -1,5 +1,5 @@
 # KhedraX System Architecture Overview
-### v1.1 — companion to KHEDRAX_CONSTITUTION.md v1.1
+### v1.0 — companion to KHEDRAX_CONSTITUTION.md v1.0
 
 The Constitution defines **how** KhedraX must be built. This document defines
 **what** exists in the system: the complete set of engines, how they depend
@@ -29,8 +29,20 @@ KhedraX
 ├── Prompt Engine
 ├── Memory Engine
 ├── Documentation Engine
-└── Packaging Engine
+├── Packaging Engine
+└── Deployment Engine   (as of Work Package #13 — NOT a producer; see §2)
 ```
+
+**Deployment Engine is deliberately not listed among the six producer
+engines above them.** It is a separate, optional, conditionally-invoked
+stage — architecturally a sibling of Packaging Engine, not a member of
+the fixed `template → module → persona → prompt → memory → documentation`
+sequence. This distinction is load-bearing: per `VERSIONING_POLICY.md` §3,
+changing the fixed producer order or adding/removing a producer from it
+requires a v2.0 bump. Deployment Engine's addition does not do either of
+those things — the six producers still run, unconditionally, in the exact
+same order as always — so this addition is v1.x, the same classification
+every prior registry-consuming engine has had since Work Package #2.
 
 ### v1 implementation status
 
@@ -39,7 +51,7 @@ KhedraX
 | CLI | Fully implemented |
 | Workflow Engine | Fully implemented (checkpoint + resume) |
 | DNA System | Fully implemented |
-| Registry System | Fully implemented (agentTypes/, modules/ — including each module's declared prompt-fragment section/exclusivity metadata — personas/, and memoryBackends/ discovery), plus, as of Work Package #11, multi-root discovery across the built-in registries and any number of external plugin directories, with built-ins always taking precedence on a name collision |
+| Registry System | Fully implemented (agentTypes/, modules/ — including each module's declared prompt-fragment section/exclusivity metadata — personas/, memoryBackends/, and, as of Work Package #13, deployments/ discovery), plus multi-root discovery across the built-in registries and any number of external plugin directories, with built-ins always taking precedence on a name collision |
 | Validation Engine | Implemented at schema + registry-cross-check level, plus, as of Work Package #8, cross-field checks: duplicate module detection and a pre-flight exclusive-prompt-section conflict check shared with Prompt Engine's own generation-time check |
 | Generation Engine | Fully implemented as orchestrator |
 | Template Engine | Fully implemented |
@@ -49,6 +61,7 @@ KhedraX
 | Prompt Engine | Fully implemented as of Work Package #3 — layered composition (identity, constraints, capabilities, instructions, escalation) with named-section merging and exclusive-ownership conflict resolution, consuming Persona Engine's behavioral profile |
 | Memory Engine | Fully implemented as of Work Package #6 — resolves a memory backend from a filesystem-discovered `memoryBackends/` registry (default `in-memory`), merges DNA-level config overrides onto the backend's declared defaults, and cross-references resolved modules' `requiresMemory` declarations, all within scaffold/config only (never runtime storage logic) |
 | Documentation Engine | Fully implemented as of Work Package #5 — renders a concise root README.md and a detailed docs/README.md from Persona Engine's behavioral profile and Module Engine's resolved module descriptors |
+| Deployment Engine | Fully implemented as of Work Package #13 — optional, conditionally-invoked (only when `dna.deployment.target` is set); resolves a deployment target descriptor from the `deployments/` registry and scaffolds a self-contained `deployment/` directory in the generated project (environment templates, a deploy script the generated project owns and runs independently, secrets placeholders, monitoring/rollback documentation); never executes any deployment action itself, per Constitution #14/#15 |
 
 Every engine marked "pass-through" or "minimum-viable" still sits in its
 correct place in the dependency graph and honors its ownership boundary below.
@@ -83,10 +96,17 @@ Generation Engine  ◄───────────────────�
  ├──► Documentation Eng.─┘                                    │
  │                                                            │
  ▼                                                            │
+Deployment Engine (OPTIONAL — only runs if dna.deployment.target is set;   │
+ │  skipped entirely, no-op, for every project that doesn't opt in)         │
+ │  resolves deployments/<target>, scaffolds deployment/ directory content  │
+ ▼                                                            │
 Packaging Engine ──────────────────────────────────────────────┘
  │  (finalizes: standalone check, atomic move to outputDir)
  ▼
-Generated Project  (standalone — no KhedraX dependency, per Constitution #14)
+Generated Project  (standalone — no KhedraX dependency, per Constitution #14;
+                     if deployment/ was scaffolded, its deploy script is
+                     fully self-contained and requires no further KhedraX
+                     invocation to run)
 ```
 
 Key structural rule: **DNA System and Registry System have no upstream
@@ -183,6 +203,12 @@ Engine.
 - **Reads:** the fully-assembled temp project directory, final `AgentDNA`, Module Engine's resolved module descriptors (for the manifest), and the KhedraX installation root path (to detect leaked build-time absolute paths — the one case where Packaging Engine needs to know anything about KhedraX's own location, purely to guarantee the generated output contains no trace of it)
 - **Writes:** `PACKAGE_MANIFEST.json` into the temp directory (as part of the packaging step, before the atomic commit), then the final generated project directory (or archive) at `outputDir`
 - **Never:** renders templates, resolves modules, or invokes Persona/Prompt/Memory/Documentation engines itself — it only verifies and commits their combined output
+
+### Deployment Engine (Work Package #13 — not a producer, see §1/§2)
+- **Owns:** resolving a requested deployment target (`dna.deployment.target`) against the Registry System's `deployments/` snapshot, and scaffolding a self-contained `deployment/` directory (environment templates, a deploy script, secrets placeholders, monitoring/rollback documentation) into the generated project
+- **Reads:** `dna.deployment`, the Registry System's `deployments/` snapshot
+- **Writes:** the `deployment/` directory in the in-progress project, before Packaging Engine's atomic commit
+- **Never:** executes any deployment, network, wallet, or infrastructure action itself; requires network access at generation time; produces a scaffolded deploy script that depends on KhedraX being invoked again to run (Constitution #14 — the script must be fully independent); runs at all when `dna.deployment.target` is unset (a no-op for every project that doesn't opt in)
 
 ---
 
