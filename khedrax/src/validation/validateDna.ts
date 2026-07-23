@@ -86,6 +86,10 @@ export function validateAgentDNA(dna: AgentDNA, registry: RegistrySnapshot, outp
     errors.push(`Unknown memory backend '${dna.memory.backend}'.`);
   }
 
+  if (dna.deployment?.target && !registry.deployments[dna.deployment.target]) {
+    errors.push(`Unknown deployment target '${dna.deployment.target}'.`);
+  }
+
   if (dna.memory.config && (Array.isArray(dna.memory.config) || dna.memory.config === null || typeof dna.memory.config !== 'object')) {
     errors.push('AgentDNA.memory.config must be an object if present.');
   }

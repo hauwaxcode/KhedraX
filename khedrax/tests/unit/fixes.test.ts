@@ -150,6 +150,22 @@ test('new agent type entries are discovered without source changes', async () =>
   assert.equal(dna.agent.type, 'support-plus');
 });
 
+test('buildAgentDNA tolerates an unsafe caller that omits modules', async () => {
+  const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-unsafe-modules-'));
+  const fixtureRoot = path.join(workspace, 'fixture');
+  await copyFixture(fixtureRoot);
+  const registry = await getRegistrySnapshot(fixtureRoot);
+
+  await assert.doesNotReject(() => buildAgentDNA({
+    name: 'SupportBot',
+    type: 'customer-support',
+    outputDir: path.join(workspace, 'out'),
+    force: true,
+    verbose: false,
+    rootDir: fixtureRoot,
+  } as any, registry));
+});
+
 test('module prompt fragments are assembled into prompts readme', async () => {
   const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-prompts-'));
   const fixtureRoot = path.join(workspace, 'fixture');

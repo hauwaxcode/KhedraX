@@ -38,9 +38,22 @@ export interface MemoryBackendDescriptor {
   configDefaults: Record<string, unknown>;
 }
 
+export interface DeploymentDescriptor {
+  name: string;
+  version: string;
+  runtime: string;
+  network: { chainId: string | null; rpcUrlEnvVar: string | null };
+  walletIntegration: { type: string; secretEnvVar?: string };
+  secretsRequired: string[];
+  monitoring: { healthCheckPath: string; logDestination: string };
+  rollback: { strategy: string };
+  templatesPath: string;
+}
+
 export interface RegistrySnapshot {
   agentTypes: Record<string, AgentTypeDescriptor>;
   modules: Record<string, ModuleDescriptor>;
   personas: Record<string, PersonaDescriptor>;
   memoryBackends: Record<string, MemoryBackendDescriptor>;
+  deployments: Record<string, DeploymentDescriptor>;
 }

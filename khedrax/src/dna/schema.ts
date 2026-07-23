@@ -19,7 +19,9 @@ export interface AgentDNA {
   };
   tools: Record<string, unknown>;
   workflows: Record<string, unknown>;
-  deployment: Record<string, unknown>;
+  deployment: {
+    target?: string;
+  };
   testing: Record<string, unknown>;
 }
 
@@ -32,4 +34,5 @@ export interface CreateAgentOptions {
   verbose: boolean;
   resume?: string;
   persona?: string;
+  deployment?: string;
 }

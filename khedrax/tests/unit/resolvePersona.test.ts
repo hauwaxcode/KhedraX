@@ -18,6 +18,7 @@ const registry: RegistrySnapshot = {
     },
   },
   memoryBackends: {},
+  deployments: {},
 };
 
 test('resolvePersona merges preset and dna overrides', () => {

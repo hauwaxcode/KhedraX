@@ -1,0 +1,10 @@
+{
+  "name": "local",
+  "version": "1.0.0",
+  "runtime": "node18",
+  "network": { "chainId": null, "rpcUrlEnvVar": null },
+  "walletIntegration": { "type": "none" },
+  "secretsRequired": [],
+  "monitoring": { "healthCheckPath": "/health", "logDestination": "stdout" },
+  "rollback": { "strategy": "restart-process" }
+}

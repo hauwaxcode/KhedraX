@@ -26,6 +26,7 @@ const registry: RegistrySnapshot = {
     },
   },
   memoryBackends: {},
+  deployments: {},
 };
 
 test('PersonaEngine builds a behavioral profile from preset, dna, and module data', async () => {

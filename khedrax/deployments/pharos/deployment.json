@@ -1,0 +1,10 @@
+{
+  "name": "pharos",
+  "version": "1.0.0",
+  "runtime": "node18",
+  "network": { "chainId": "PHAROS_CHAIN_ID_PLACEHOLDER", "rpcUrlEnvVar": "PHAROS_RPC_URL" },
+  "walletIntegration": { "type": "private-key-env", "secretEnvVar": "PHAROS_DEPLOYER_PRIVATE_KEY" },
+  "secretsRequired": ["PHAROS_RPC_URL", "PHAROS_DEPLOYER_PRIVATE_KEY"],
+  "monitoring": { "healthCheckPath": "/health", "logDestination": "stdout" },
+  "rollback": { "strategy": "redeploy-previous-version" }
+}
