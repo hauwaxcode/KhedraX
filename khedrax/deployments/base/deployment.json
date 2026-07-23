@@ -1,0 +1,27 @@
+{
+  "name": "base",
+  "version": "1.1.0",
+  "runtime": "node18",
+  "network": {
+    "chainId": "base-8453",
+    "rpcUrlEnvVar": "BASE_RPC_URL",
+    "exampleRpcEndpoint": "https://base-mainnet.example/rpc"
+  },
+  "walletIntegration": {
+    "type": "keystore",
+    "supportedTypes": ["keystore", "hardware", "walletconnect"],
+    "secretEnvVar": "BASE_DEPLOYER_PRIVATE_KEY"
+  },
+  "secretsRequired": ["BASE_RPC_URL", "BASE_DEPLOYER_PRIVATE_KEY"],
+  "secretsDescriptions": {
+    "BASE_RPC_URL": "RPC endpoint used to submit transactions to the Base network.",
+    "BASE_DEPLOYER_PRIVATE_KEY": "Private key for the wallet that pays deployment gas and owns the deployed agent."
+  },
+  "environmentTemplate": {
+    "BASE_NETWORK_MODE": "mainnet"
+  },
+  "monitoring": { "healthCheckPath": "/health", "logDestination": "stdout" },
+  "rollback": { "strategy": "redeploy-previous-version" },
+  "verificationStrategy": "After running deploy.sh, manually confirm the health endpoint returns 200 and check the deployment log for a successful startup message. Do not consider the deployment verified until both checks pass.",
+  "configTemplate": { "network": "base", "logLevel": "info" }
+}

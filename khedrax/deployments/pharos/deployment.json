@@ -1,10 +1,27 @@
 {
   "name": "pharos",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "runtime": "node18",
-  "network": { "chainId": "PHAROS_CHAIN_ID_PLACEHOLDER", "rpcUrlEnvVar": "PHAROS_RPC_URL" },
-  "walletIntegration": { "type": "private-key-env", "secretEnvVar": "PHAROS_DEPLOYER_PRIVATE_KEY" },
+  "network": {
+    "chainId": "pharos-1",
+    "rpcUrlEnvVar": "PHAROS_RPC_URL",
+    "exampleRpcEndpoint": "https://rpc.pharos.example/v1"
+  },
+  "walletIntegration": {
+    "type": "keystore",
+    "supportedTypes": ["keystore", "hardware"],
+    "secretEnvVar": "PHAROS_DEPLOYER_PRIVATE_KEY"
+  },
   "secretsRequired": ["PHAROS_RPC_URL", "PHAROS_DEPLOYER_PRIVATE_KEY"],
+  "secretsDescriptions": {
+    "PHAROS_RPC_URL": "RPC endpoint used to submit transactions to the Pharos network.",
+    "PHAROS_DEPLOYER_PRIVATE_KEY": "Private key for the wallet that pays deployment gas and owns the deployed agent."
+  },
+  "environmentTemplate": {
+    "PHAROS_NETWORK_MODE": "mainnet"
+  },
   "monitoring": { "healthCheckPath": "/health", "logDestination": "stdout" },
-  "rollback": { "strategy": "redeploy-previous-version" }
+  "rollback": { "strategy": "redeploy-previous-version" },
+  "verificationStrategy": "After running deploy.sh, manually confirm the health endpoint returns 200 and check the deployment log for a successful startup message. Do not consider the deployment verified until both checks pass.",
+  "configTemplate": { "network": "pharos", "logLevel": "info" }
 }

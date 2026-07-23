@@ -42,11 +42,23 @@ export interface DeploymentDescriptor {
   name: string;
   version: string;
   runtime: string;
-  network: { chainId: string | null; rpcUrlEnvVar: string | null };
-  walletIntegration: { type: string; secretEnvVar?: string };
+  network: {
+    chainId: string | null;
+    rpcUrlEnvVar: string | null;
+    exampleRpcEndpoint?: string | null;
+  };
+  walletIntegration: {
+    type: string;
+    secretEnvVar?: string;
+    supportedTypes?: string[];
+  };
   secretsRequired: string[];
+  secretsDescriptions?: Record<string, string>;
+  environmentTemplate?: Record<string, string | number | boolean | null>;
   monitoring: { healthCheckPath: string; logDestination: string };
   rollback: { strategy: string };
+  verificationStrategy?: string;
+  configTemplate?: Record<string, unknown>;
   templatesPath: string;
 }
 

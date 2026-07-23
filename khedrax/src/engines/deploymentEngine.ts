@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { dump } from 'js-yaml';
 import type { GenerationContext, ProducerEngine, ProducerResult } from '../generation/types.ts';
+import type { DeploymentDescriptor } from '../registry/types.ts';
 
 export class DeploymentEngine implements ProducerEngine {
   name = 'deployment';
@@ -20,10 +22,11 @@ export class DeploymentEngine implements ProducerEngine {
     return { artifacts: { target, rendered: true } };
   }
 
-  private async renderDeploymentFiles(deploymentDir: string, descriptor: { runtime: string; secretsRequired: string[]; name: string; network: { chainId: string | null; rpcUrlEnvVar: string | null }; walletIntegration: { type: string; secretEnvVar?: string }; monitoring: { healthCheckPath: string; logDestination: string }; rollback: { strategy: string } }): Promise<void> {
+  private async renderDeploymentFiles(deploymentDir: string, descriptor: DeploymentDescriptor): Promise<void> {
     const deployScriptPath = path.join(deploymentDir, 'deploy.sh');
     const envExamplePath = path.join(deploymentDir, '.env.example');
     const readmePath = path.join(deploymentDir, 'README.md');
+    const configYamlPath = path.join(deploymentDir, 'config.yaml');
 
     // Preserve any existing template deploy.sh and inject a secrets check only when required
     let originalDeploy = '';
@@ -67,11 +70,9 @@ export class DeploymentEngine implements ProducerEngine {
       deployScript = checkBlock + originalDeploy;
     }
 
-    const envExample = descriptor.secretsRequired.length > 0
-      ? descriptor.secretsRequired.map((secret) => `${secret}=`).join('\n')
-      : `# ${descriptor.name.charAt(0).toUpperCase() + descriptor.name.slice(1)} deployment does not require additional secrets.`;
-
-    const readme = `# Deployment\n\nTarget: ${descriptor.name}\nRuntime: ${descriptor.runtime}\nMonitoring: ${descriptor.monitoring.healthCheckPath} -> ${descriptor.monitoring.logDestination}\nRollback: ${descriptor.rollback.strategy}\n`;
+    const envExample = this.buildEnvExample(descriptor);
+    const templateReadme = await this.readOptionalFile(readmePath);
+    const readme = this.buildReadme(descriptor, templateReadme);
 
     // always include a short secretsRequired comment so templates and tests can inspect it
     const secretsComment = `# secretsRequired: ${descriptor.secretsRequired.join(',')}\n`;
@@ -86,5 +87,79 @@ export class DeploymentEngine implements ProducerEngine {
     await fs.writeFile(deployScriptPath, deployScript);
     await fs.writeFile(envExamplePath, envExample);
     await fs.writeFile(readmePath, readme);
+
+    if (descriptor.configTemplate && Object.keys(descriptor.configTemplate).length > 0) {
+      const configYaml = dump(descriptor.configTemplate, { lineWidth: -1, noRefs: true });
+      await fs.writeFile(configYamlPath, configYaml);
+    } else {
+      await fs.rm(configYamlPath, { force: true });
+    }
+  }
+
+  private buildEnvExample(descriptor: DeploymentDescriptor): string {
+    const secretLines = descriptor.secretsRequired.map((secret) => `${secret}=`);
+    const environmentEntries = Object.entries(descriptor.environmentTemplate ?? {});
+
+    if (secretLines.length === 0 && environmentEntries.length === 0) {
+      return `# ${descriptor.name.charAt(0).toUpperCase() + descriptor.name.slice(1)} deployment does not require additional secrets.`;
+    }
+
+    const lines = [...secretLines];
+    if (environmentEntries.length > 0) {
+      if (lines.length > 0) {
+        lines.push('');
+      }
+      lines.push(...environmentEntries.map(([key, value]) => `${key}=${this.renderEnvValue(value)}`));
+    }
+    return lines.join('\n');
+  }
+
+  private buildReadme(descriptor: DeploymentDescriptor, existingReadme: string): string {
+    const hasRichMetadata = Boolean(
+      descriptor.verificationStrategy
+      || Object.keys(descriptor.secretsDescriptions ?? {}).length > 0
+      || Object.keys(descriptor.environmentTemplate ?? {}).length > 0
+      || (descriptor.configTemplate && Object.keys(descriptor.configTemplate).length > 0),
+    );
+
+    if (!hasRichMetadata) {
+      return `# Deployment\n\nTarget: ${descriptor.name}\nRuntime: ${descriptor.runtime}\nMonitoring: ${descriptor.monitoring.healthCheckPath} -> ${descriptor.monitoring.logDestination}\nRollback: ${descriptor.rollback.strategy}\n`;
+    }
+
+    const sections: string[] = [];
+    if (existingReadme.trim()) {
+      sections.push(existingReadme.trim());
+    }
+    sections.push(`## Secrets`);
+    if (descriptor.secretsRequired.length > 0) {
+      for (const secret of descriptor.secretsRequired) {
+        const description = descriptor.secretsDescriptions?.[secret];
+        sections.push(`- ${secret}${description ? `: ${description}` : ''}`);
+      }
+    } else {
+      sections.push('- No additional secrets are required.');
+    }
+    if (descriptor.verificationStrategy) {
+      sections.push('');
+      sections.push('## Verification');
+      sections.push(descriptor.verificationStrategy);
+    }
+
+    return sections.join('\n\n');
+  }
+
+  private async readOptionalFile(filePath: string): Promise<string> {
+    try {
+      return await fs.readFile(filePath, 'utf8');
+    } catch {
+      return '';
+    }
+  }
+
+  private renderEnvValue(value: string | number | boolean | null | undefined): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value);
   }
 }
