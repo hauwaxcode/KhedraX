@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { dump } from 'js-yaml';
 import type { GenerationContext, ProducerEngine, ProducerResult } from '../generation/types.ts';
 import type { DeploymentDescriptor } from '../registry/types.ts';
 
@@ -62,12 +61,15 @@ export class DeploymentEngine implements ProducerEngine {
         '}\n\n' +
         'check_required_env\n\n';
 
-      // If the original deploy script already has a shebang, remove it to avoid duplication
+      // If the original deploy script already has a standard shebang and set -euo pipefail block, remove it to avoid duplication
       if (originalDeploy.startsWith('#!')) {
-        const idx = originalDeploy.indexOf('\n');
-        originalDeploy = originalDeploy.slice(idx + 1);
+        const firstNewline = originalDeploy.indexOf('\n');
+        const remaining = originalDeploy.slice(firstNewline + 1);
+        const normalized = remaining.replace(/^set -euo pipefail\n\n/, '');
+        deployScript = checkBlock + normalized;
+      } else {
+        deployScript = checkBlock + originalDeploy;
       }
-      deployScript = checkBlock + originalDeploy;
     }
 
     const envExample = this.buildEnvExample(descriptor);
@@ -89,7 +91,9 @@ export class DeploymentEngine implements ProducerEngine {
     await fs.writeFile(readmePath, readme);
 
     if (descriptor.configTemplate && Object.keys(descriptor.configTemplate).length > 0) {
-      const configYaml = dump(descriptor.configTemplate, { lineWidth: -1, noRefs: true });
+      const configYaml = Object.entries(descriptor.configTemplate)
+        .map(([key, value]) => `${key}: ${this.renderEnvValue(value)}`)
+        .join('\n') + '\n';
       await fs.writeFile(configYamlPath, configYaml);
     } else {
       await fs.rm(configYamlPath, { force: true });
@@ -130,7 +134,19 @@ export class DeploymentEngine implements ProducerEngine {
     if (existingReadme.trim()) {
       sections.push(existingReadme.trim());
     }
-    sections.push(`## Secrets`);
+
+    if (descriptor.walletIntegration.type || descriptor.walletIntegration.supportedTypes?.length) {
+      sections.push('## Wallet Integration');
+      sections.push(`Type: ${descriptor.walletIntegration.type}`);
+      if (descriptor.walletIntegration.supportedTypes?.length) {
+        sections.push(`Supported types: ${descriptor.walletIntegration.supportedTypes.join(', ')}`);
+      }
+      if (descriptor.walletIntegration.secretEnvVar) {
+        sections.push(`Secret env var: ${descriptor.walletIntegration.secretEnvVar}`);
+      }
+    }
+
+    sections.push('## Secrets');
     if (descriptor.secretsRequired.length > 0) {
       for (const secret of descriptor.secretsRequired) {
         const description = descriptor.secretsDescriptions?.[secret];
@@ -156,7 +172,7 @@ export class DeploymentEngine implements ProducerEngine {
     }
   }
 
-  private renderEnvValue(value: string | number | boolean | null | undefined): string {
+  private renderEnvValue(value: unknown): string {
     if (value === null || value === undefined) {
       return '';
     }

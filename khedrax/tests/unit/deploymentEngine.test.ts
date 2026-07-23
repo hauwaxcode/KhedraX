@@ -89,6 +89,7 @@ test('deployment engine scaffolds pharos templates with required secrets', async
   assert.match(readme, /Verification/);
   assert.match(readme, /RPC endpoint used to submit transactions/);
   assert.match(readme, /Private key for the wallet/);
+  assert.match(readme, /Supported types: keystore, hardware/);
 });
 
 test('deployment engine renders target-specific ethereum and base descriptors', async () => {
@@ -111,11 +112,14 @@ test('deployment engine renders target-specific ethereum and base descriptors', 
     await new TemplateEngine().run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
     const engine = new DeploymentEngine();
     await engine.run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+    const deployScript = await fs.readFile(path.join(tempDir, 'deployment', 'deploy.sh'), 'utf8');
     const envExample = await fs.readFile(path.join(tempDir, 'deployment', '.env.example'), 'utf8');
     const readme = await fs.readFile(path.join(tempDir, 'deployment', 'README.md'), 'utf8');
+    assert.match(deployScript, new RegExp(`echo "${target.charAt(0).toUpperCase() + target.slice(1)} deployment scaffold ready."`));
     assert.match(envExample, new RegExp(`${target.toUpperCase()}_RPC_URL`));
     assert.match(readme, /Verification/);
     assert.match(readme, /Secrets/);
+    assert.match(readme, /Supported types: keystore, hardware, walletconnect/);
   }
 });
 
