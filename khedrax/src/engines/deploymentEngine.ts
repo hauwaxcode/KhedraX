@@ -100,7 +100,7 @@ export class DeploymentEngine implements ProducerEngine {
       'check_required_env() {\n' +
       '  local missing=()\n' +
       `  for var in ${secrets}; do\n` +
-      '    if [[ -z "${!var}" ]]; then\n' +
+      '    if [[ -z "${!var:-}" ]]; then\n' +
       '      missing+=("$var")\n' +
       '    fi\n' +
       '  done\n' +
