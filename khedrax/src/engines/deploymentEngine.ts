@@ -22,71 +22,19 @@ export class DeploymentEngine implements ProducerEngine {
   }
 
   private async renderDeploymentFiles(deploymentDir: string, descriptor: DeploymentDescriptor): Promise<void> {
-    const deployScriptPath = path.join(deploymentDir, 'deploy.sh');
+    const actions = ['deploy', 'status', 'logs', 'rollback', 'destroy', 'update'] as const;
+    for (const action of actions) {
+      await this.renderDeploymentAction(deploymentDir, descriptor, action);
+    }
+
     const envExamplePath = path.join(deploymentDir, '.env.example');
     const readmePath = path.join(deploymentDir, 'README.md');
     const configYamlPath = path.join(deploymentDir, 'config.yaml');
-
-    // Preserve any existing template deploy.sh and inject a secrets check only when required
-    let originalDeploy = '';
-    try {
-      originalDeploy = await fs.readFile(deployScriptPath, 'utf8');
-    } catch {
-      // template may not exist; fall back to a minimal placeholder
-      originalDeploy = `echo "Deployment target: ${descriptor.name}"\n` +
-        `echo "Runtime: ${descriptor.runtime}"\n` +
-        `echo "Monitoring: ${descriptor.monitoring.healthCheckPath} -> ${descriptor.monitoring.logDestination}"\n` +
-        `echo "Rollback: ${descriptor.rollback.strategy}"\n` +
-        '# TODO: replace with your agent\'s actual start command\n';
-    }
-
-    let deployScript = originalDeploy;
-    const hasExistingSecretsCheck = /required_env|check_required_env/.test(originalDeploy);
-    if (descriptor.secretsRequired.length > 0 && !hasExistingSecretsCheck) {
-      const secrets = descriptor.secretsRequired.join(' ');
-      const checkBlock =
-        '#!/usr/bin/env bash\n' +
-        'set -euo pipefail\n\n' +
-        'check_required_env() {\n' +
-        '  local missing=()\n' +
-        `  for var in ${secrets}; do\n` +
-        '    if [[ -z "${!var}" ]]; then\n' +
-        '      missing+=("$var")\n' +
-        '    fi\n' +
-        '  done\n' +
-        '  if (( ${#missing[@]} > 0 )); then\n' +
-        '    echo "Missing required environment variables: ${missing[*]}" >&2\n' +
-        '    exit 1\n' +
-        '  fi\n' +
-        '}\n\n' +
-        'check_required_env\n\n';
-
-      // If the original deploy script already has a standard shebang and set -euo pipefail block, remove it to avoid duplication
-      if (originalDeploy.startsWith('#!')) {
-        const firstNewline = originalDeploy.indexOf('\n');
-        const remaining = originalDeploy.slice(firstNewline + 1);
-        const normalized = remaining.replace(/^set -euo pipefail\n\n/, '');
-        deployScript = checkBlock + normalized;
-      } else {
-        deployScript = checkBlock + originalDeploy;
-      }
-    }
 
     const envExample = this.buildEnvExample(descriptor);
     const templateReadme = await this.readOptionalFile(readmePath);
     const readme = this.buildReadme(descriptor, templateReadme);
 
-    // always include a short secretsRequired comment so templates and tests can inspect it
-    const secretsComment = `# secretsRequired: ${descriptor.secretsRequired.join(',')}\n`;
-    // if the script starts with a shebang, insert the comment after it
-    if (deployScript.startsWith('#!')) {
-      const idx = deployScript.indexOf('\n');
-      deployScript = deployScript.slice(0, idx + 1) + secretsComment + deployScript.slice(idx + 1);
-    } else {
-      deployScript = secretsComment + deployScript;
-    }
-
-    await fs.writeFile(deployScriptPath, deployScript);
     await fs.writeFile(envExamplePath, envExample);
     await fs.writeFile(readmePath, readme);
 
@@ -98,6 +46,78 @@ export class DeploymentEngine implements ProducerEngine {
     } else {
       await fs.rm(configYamlPath, { force: true });
     }
+  }
+
+  private async renderDeploymentAction(
+    deploymentDir: string,
+    descriptor: DeploymentDescriptor,
+    action: 'deploy' | 'status' | 'logs' | 'rollback' | 'destroy' | 'update',
+  ): Promise<void> {
+    const scriptPath = path.join(deploymentDir, `${action}.sh`);
+    let originalScript = '';
+    try {
+      originalScript = await fs.readFile(scriptPath, 'utf8');
+    } catch {
+      if (action === 'deploy') {
+        originalScript = this.buildDefaultDeployScript(descriptor);
+      }
+    }
+
+    if (!originalScript) {
+      return;
+    }
+
+    let renderedScript = originalScript;
+    const hasExistingSecretsCheck = /required_env|check_required_env/.test(originalScript);
+    if (descriptor.secretsRequired.length > 0 && !hasExistingSecretsCheck) {
+      renderedScript = this.injectSecretsCheck(originalScript, descriptor.secretsRequired);
+    }
+
+    const secretsComment = `# secretsRequired: ${descriptor.secretsRequired.join(',')}\n`;
+    if (renderedScript.startsWith('#!')) {
+      const idx = renderedScript.indexOf('\n');
+      renderedScript = renderedScript.slice(0, idx + 1) + secretsComment + renderedScript.slice(idx + 1);
+    } else {
+      renderedScript = secretsComment + renderedScript;
+    }
+
+    await fs.writeFile(scriptPath, renderedScript);
+  }
+
+  private buildDefaultDeployScript(descriptor: DeploymentDescriptor): string {
+    return `echo "Deployment target: ${descriptor.name}"\n` +
+      `echo "Runtime: ${descriptor.runtime}"\n` +
+      `echo "Monitoring: ${descriptor.monitoring.healthCheckPath} -> ${descriptor.monitoring.logDestination}"\n` +
+      `echo "Rollback: ${descriptor.rollback.strategy}"\n` +
+      '# TODO: replace with your agent\'s actual start command\n';
+  }
+
+  private injectSecretsCheck(script: string, secretsRequired: string[]): string {
+    const secrets = secretsRequired.join(' ');
+    const checkBlock =
+      '#!/usr/bin/env bash\n' +
+      'set -euo pipefail\n\n' +
+      'check_required_env() {\n' +
+      '  local missing=()\n' +
+      `  for var in ${secrets}; do\n` +
+      '    if [[ -z "${!var}" ]]; then\n' +
+      '      missing+=("$var")\n' +
+      '    fi\n' +
+      '  done\n' +
+      '  if (( ${#missing[@]} > 0 )); then\n' +
+      '    echo "Missing required environment variables: ${missing[*]}" >&2\n' +
+      '    exit 1\n' +
+      '  fi\n' +
+      '}\n\n' +
+      'check_required_env\n\n';
+
+    if (script.startsWith('#!')) {
+      const firstNewline = script.indexOf('\n');
+      const remaining = script.slice(firstNewline + 1);
+      const normalized = remaining.replace(/^set -euo pipefail\n\n/, '');
+      return checkBlock + normalized;
+    }
+    return checkBlock + script;
   }
 
   private buildEnvExample(descriptor: DeploymentDescriptor): string {

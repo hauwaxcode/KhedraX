@@ -113,14 +113,78 @@ test('deployment engine renders target-specific ethereum and base descriptors', 
     const engine = new DeploymentEngine();
     await engine.run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
     const deployScript = await fs.readFile(path.join(tempDir, 'deployment', 'deploy.sh'), 'utf8');
+    const statusScript = await fs.readFile(path.join(tempDir, 'deployment', 'status.sh'), 'utf8');
+    const logsScript = await fs.readFile(path.join(tempDir, 'deployment', 'logs.sh'), 'utf8');
+    const rollbackScript = await fs.readFile(path.join(tempDir, 'deployment', 'rollback.sh'), 'utf8');
+    const destroyScript = await fs.readFile(path.join(tempDir, 'deployment', 'destroy.sh'), 'utf8');
+    const updateScript = await fs.readFile(path.join(tempDir, 'deployment', 'update.sh'), 'utf8');
     const envExample = await fs.readFile(path.join(tempDir, 'deployment', '.env.example'), 'utf8');
     const readme = await fs.readFile(path.join(tempDir, 'deployment', 'README.md'), 'utf8');
+
     assert.match(deployScript, new RegExp(`echo "${target.charAt(0).toUpperCase() + target.slice(1)} deployment scaffold ready."`));
+    assert.match(statusScript, /status scaffold ready/);
+    assert.match(logsScript, /logs scaffold ready/);
+    assert.match(rollbackScript, /rollback scaffold ready/);
+    assert.match(destroyScript, /destroy scaffold ready/);
+    assert.match(updateScript, /update scaffold ready/);
     assert.match(envExample, new RegExp(`${target.toUpperCase()}_RPC_URL`));
     assert.match(readme, /Verification/);
     assert.match(readme, /Secrets/);
     assert.match(readme, /Supported types: keystore, hardware, walletconnect/);
   }
+});
+
+test('deployment engine skips missing action templates and only renders deploy.sh when others are absent', async () => {
+  const registry = await getRegistrySnapshot(khedraxRoot);
+  const customTarget = 'minimal';
+  const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-deployment-minimal-'));
+  const customTemplates = path.join(workspace, 'templates');
+  await fs.mkdir(customTemplates, { recursive: true });
+  await fs.writeFile(path.join(customTemplates, 'deploy.sh'), '#!/usr/bin/env bash\necho "Minimal deploy scaffold ready."\n');
+
+  const minimalDescriptor = {
+    name: 'minimal',
+    version: '1.0.0',
+    runtime: 'node18',
+    network: { chainId: null, rpcUrlEnvVar: null },
+    walletIntegration: { type: 'none' },
+    secretsRequired: [] as string[],
+    monitoring: { healthCheckPath: '/health', logDestination: 'stdout' },
+    rollback: { strategy: 'restart-process' },
+    templatesPath: customTemplates,
+  };
+
+  const customRegistry = {
+    ...registry,
+    deployments: {
+      ...registry.deployments,
+      [customTarget]: minimalDescriptor,
+    },
+  };
+
+  const dna = await buildAgentDNA({
+    name: 'MinimalBot',
+    type: 'basic',
+    outputDir: '/tmp/out',
+    modules: [],
+    force: false,
+    verbose: false,
+  }, customRegistry);
+  dna.deployment = { target: customTarget };
+
+  const tempDir = path.join(workspace, 'temp');
+  await fs.mkdir(tempDir, { recursive: true });
+  await new TemplateEngine().run({ dna, registry: customRegistry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+  const engine = new DeploymentEngine();
+  await engine.run({ dna, registry: customRegistry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+
+  const deployScript = await fs.readFile(path.join(tempDir, 'deployment', 'deploy.sh'), 'utf8');
+  assert.match(deployScript, /Minimal deploy scaffold ready/);
+  await assert.rejects(fs.readFile(path.join(tempDir, 'deployment', 'status.sh'), 'utf8'));
+  await assert.rejects(fs.readFile(path.join(tempDir, 'deployment', 'logs.sh'), 'utf8'));
+  await assert.rejects(fs.readFile(path.join(tempDir, 'deployment', 'rollback.sh'), 'utf8'));
+  await assert.rejects(fs.readFile(path.join(tempDir, 'deployment', 'destroy.sh'), 'utf8'));
+  await assert.rejects(fs.readFile(path.join(tempDir, 'deployment', 'update.sh'), 'utf8'));
 });
 
 test('deployment engine omits config.yaml when configTemplate is absent', async () => {
