@@ -90,6 +90,21 @@ export function validateAgentDNA(dna: AgentDNA, registry: RegistrySnapshot, outp
     errors.push(`Unknown deployment target '${dna.deployment.target}'.`);
   }
 
+  if (dna.interface?.type && !registry.interfaces?.[dna.interface.type]) {
+    errors.push(`Unknown interface type '${dna.interface.type}'.`);
+  }
+
+  if (dna.interface?.config && (Array.isArray(dna.interface.config) || dna.interface.config === null || typeof dna.interface.config !== 'object')) {
+    errors.push('AgentDNA.interface.config must be an object if present.');
+  }
+
+  if (dna.interface?.type) {
+    const descriptor = registry.interfaces?.[dna.interface.type];
+    if (descriptor?.pairsWithModule && !dna.modules.includes(descriptor.pairsWithModule)) {
+      warnings.push(`Interface '${dna.interface.type}' pairs with module '${descriptor.pairsWithModule}' but that module is not selected.`);
+    }
+  }
+
   if (dna.memory.config && (Array.isArray(dna.memory.config) || dna.memory.config === null || typeof dna.memory.config !== 'object')) {
     errors.push('AgentDNA.memory.config must be an object if present.');
   }

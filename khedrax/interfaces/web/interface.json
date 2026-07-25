@@ -1,0 +1,6 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "A web chat interface scaffold for a generated agent.",
+  "pairsWithModule": null
+}

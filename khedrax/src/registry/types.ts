@@ -62,10 +62,19 @@ export interface DeploymentDescriptor {
   templatesPath: string;
 }
 
+export interface InterfaceDescriptor {
+  name: string;
+  version: string;
+  description: string;
+  pairsWithModule?: string | null;
+  templatesPath: string;
+}
+
 export interface RegistrySnapshot {
   agentTypes: Record<string, AgentTypeDescriptor>;
   modules: Record<string, ModuleDescriptor>;
   personas: Record<string, PersonaDescriptor>;
   memoryBackends: Record<string, MemoryBackendDescriptor>;
   deployments: Record<string, DeploymentDescriptor>;
+  interfaces?: Record<string, InterfaceDescriptor>;
 }

@@ -22,6 +22,10 @@ export interface AgentDNA {
   deployment: {
     target?: string;
   };
+  interface?: {
+    type?: string;
+    config?: Record<string, unknown>;
+  };
   testing: Record<string, unknown>;
 }
 
@@ -35,4 +39,5 @@ export interface CreateAgentOptions {
   resume?: string;
   persona?: string;
   deployment?: string;
+  interface?: string;
 }

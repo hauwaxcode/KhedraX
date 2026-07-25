@@ -8,6 +8,7 @@ import { PromptEngine } from '../engines/promptEngine.ts';
 import { MemoryEngine } from '../engines/memoryEngine.ts';
 import { DocumentationEngine } from '../engines/documentationEngine.ts';
 import { DeploymentEngine } from '../engines/deploymentEngine.ts';
+import { InterfaceEngine } from '../engines/interfaceEngine.ts';
 import { PackagingEngine } from '../engines/packagingEngine.ts';
 import type { GenerationContext, ProducerEngine, ProducerResult } from './types.ts';
 
@@ -48,6 +49,12 @@ export class GenerationEngine {
     const deploymentResult = await deploymentEngine.run({ ...context, tempDir, artifacts });
     if (deploymentResult.artifacts) {
       artifacts[deploymentEngine.name] = deploymentResult.artifacts;
+    }
+
+    const interfaceEngine = new InterfaceEngine();
+    const interfaceResult = await interfaceEngine.run({ ...context, tempDir, artifacts });
+    if (interfaceResult.artifacts) {
+      artifacts[interfaceEngine.name] = interfaceResult.artifacts;
     }
 
     if (!context.khedraxRootDir) {

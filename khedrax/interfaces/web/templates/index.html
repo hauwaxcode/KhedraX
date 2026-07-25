@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{name}} Interface</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="chat-shell">
+      <h1>{{name}} Chat</h1>
+      <p>Connect this UI to your generated agent's local API endpoint.</p>
+      <textarea id="message" placeholder="Type your message"></textarea>
+      <button onclick="sendMessage(document.getElementById('message').value)">Send</button>
+      <pre id="response"></pre>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

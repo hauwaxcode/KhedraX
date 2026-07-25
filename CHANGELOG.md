@@ -3,6 +3,22 @@
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct
 from KhedraX's own code release history.
 
+## v1.6 — Interface Engine: web, Discord, Telegram, and admin dashboard scaffolds
+
+- Work package: WP16
+- Added a new optional Interface Engine invoked conditionally inside
+  `GenerationEngine.run()` after the fixed producer loop, alongside
+  Deployment Engine, with no changes to the producer order or the existing
+  producer-engine ownership boundaries. Registered four built-in interface
+  types under `khedrax/interfaces/` (`web`, `discord`, `telegram`, `admin`)
+  and scaffolded real application skeletons into generated `interface/`
+  directories, including a Discord bot client, a Telegram bot client, a web
+  chat UI, and a static admin dashboard shell. Added interface DNA support
+  (`dna.interface.type`/`config`), registry discovery, validation warnings
+  for interface/module pairing mismatches, and CLI support via
+  `--interface <type>` while keeping the engine itself free of exec/spawn/
+  fetch/network calls.
+
 ## v1.5 — Deployment CLI: deploy, status, logs, rollback, destroy, update
 
 - Work package: WP15

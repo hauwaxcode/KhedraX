@@ -1,0 +1,6 @@
+{
+  "name": "telegram",
+  "version": "1.0.0",
+  "description": "A Telegram bot client scaffold for a generated agent.",
+  "pairsWithModule": null
+}

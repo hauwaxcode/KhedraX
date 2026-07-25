@@ -16,7 +16,7 @@ const deploymentActions = ['deploy', 'status', 'logs', 'rollback', 'destroy', 'u
 async function main(): Promise<void> {
   if (command === 'create') {
     if (!target) {
-      console.error('Usage: khedrax create <Name> [--type ...] [--output ...] [--force] [--deployment ...]');
+      console.error('Usage: khedrax create <Name> [--type ...] [--output ...] [--force] [--deployment ...] [--interface ...]');
       process.exit(1);
     }
 
@@ -29,6 +29,7 @@ async function main(): Promise<void> {
     let modules: string[] = [];
     let persona: string | undefined;
     let deployment: string | undefined;
+    let interfaceType: string | undefined;
     const pluginRootsFromEnv = (process.env.KHEDRAX_PLUGIN_PATH ?? '').split(':').map((value) => value.trim()).filter(Boolean);
     const pluginRoots: string[] = [...pluginRootsFromEnv];
     for (let index = 0; index < args.length; index += 1) {
@@ -55,6 +56,9 @@ async function main(): Promise<void> {
       } else if (arg === '--deployment' && args[index + 1]) {
         deployment = args[index + 1];
         index += 1;
+      } else if (arg === '--interface' && args[index + 1]) {
+        interfaceType = args[index + 1];
+        index += 1;
       } else if (arg === '--plugin-path' && args[index + 1]) {
         pluginRoots.push(args[index + 1]);
         index += 1;
@@ -72,6 +76,7 @@ async function main(): Promise<void> {
         resume,
         persona,
         deployment,
+        interface: interfaceType,
         pluginRoots,
       });
       console.log(result.outputPath);

@@ -15,6 +15,7 @@ export function getDefaultDNA(name: string, agentType: string): Record<string, u
     tools: {},
     workflows: {},
     deployment: {},
+    interface: {},
     testing: {},
   };
 }

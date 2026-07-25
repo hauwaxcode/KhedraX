@@ -15,6 +15,7 @@ export async function buildAgentDNA(options: CreateAgentOptions, registry: Regis
   const seenModules = new Set<string>();
   const persona = { ...base.persona };
   const deployment = { ...(base.deployment ?? {}) } as { target?: string };
+  const interfaceConfig = { ...(base.interface ?? {}) } as { type?: string; config?: Record<string, unknown> };
 
   const addModule = (moduleName: string): void => {
     if (!seenModules.has(moduleName)) {
@@ -33,6 +34,10 @@ export async function buildAgentDNA(options: CreateAgentOptions, registry: Regis
 
   if (options.deployment) {
     deployment.target = options.deployment;
+  }
+
+  if (options.interface) {
+    interfaceConfig.type = options.interface;
   }
 
   for (const agentType of Object.values(registry.agentTypes)) {
@@ -58,6 +63,7 @@ export async function buildAgentDNA(options: CreateAgentOptions, registry: Regis
     persona,
     memory: base.memory ?? {},
     deployment,
+    interface: interfaceConfig,
   };
   return dna;
 }
