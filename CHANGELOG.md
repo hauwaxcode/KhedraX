@@ -3,6 +3,57 @@
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct
 from KhedraX's own code release history.
 
+## v1.5 — Deployment CLI: deploy, status, logs, rollback, destroy, update
+
+- Work package: WP15
+- Six new CLI commands, each locating an already-generated project's own
+  `deployment/<action>.sh` and running it via a shared
+  `runDeploymentScript()` launcher — zero registry/DNA access in the
+  command handlers. Deployment Engine deepened to scaffold five additional
+  per-action scripts using the same render logic already proven for
+  `deploy.sh`. Fixed a bug in the shared secrets-check generator
+  (`${!var}` → `${!var:-}`) that caused auto-generated scripts to crash
+  with a raw bash error instead of a clean message when a required secret
+  was unset. The CLI launcher is the one place in this codebase permitted
+  to spawn a process — and only ever the generated project's own
+  pre-existing script, never anything KhedraX constructs or fetches
+  itself. No new engine.
+
+## v1.4 — Runtime adapters: richer deployment descriptors
+
+- Work package: WP14
+- Enriched `deployments/<target>/deployment.json` with additive-only
+  fields: wallet types, RPC endpoint examples, secret descriptions
+  (`secretsDescriptions`, kept separate from the existing `secretsRequired`
+  string array to avoid breaking its established shape), non-secret
+  environment defaults, a rendered `config.yaml`, and a human-readable
+  verification-strategy section. Added `ethereum` and `base` as new
+  targets using the enriched schema; `local` kept unchanged as the
+  regression proof that simpler, older descriptors still work. Removed an
+  accidental runtime dependency on `js-yaml` from `deploymentEngine.ts` in
+  favor of plain string templating, consistent with every other rendered
+  file in this system. No new registry category, no new engine — this is
+  Deployment Engine (Work Package #13) deepened, consolidated into the
+  existing `deployments/` registry rather than a competing
+  `runtimeAdapters/` tree.
+
+## v1.3 — Deployment Registry: deployment descriptors, Deployment Engine, Pharos target
+
+- Work package: WP13
+- New `deployments/` registry (`pharos`, `local` targets) and a new
+  Deployment Engine — the first new engine since the original 13-engine
+  map. Classified v1.x, not v2.0, because it is invoked as a conditional
+  call inside `GenerationEngine.run()` itself (after the fixed six-producer
+  loop, before Packaging Engine), never added to the `producers` array —
+  the fixed producer order and every existing engine's ownership boundary
+  are unchanged. Deployment Engine only ever writes scaffold files
+  (a deploy script the generated project owns and runs independently,
+  environment templates, secrets placeholders, monitoring/rollback
+  documentation) — it never executes a deployment action itself, per
+  Constitution #14/#15. This conditional-call pattern is now the standing
+  precedent for any future non-producer engine (see
+  `ENGINE_DECISION_HIERARCHY.md`).
+
 ## v1.2 — Dogfood registry growth: generate KhedraX tooling agents
 
 - Work package: WP12
