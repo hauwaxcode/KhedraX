@@ -1,0 +1,13 @@
+{
+  "name": "billing-subscription",
+  "version": "1.0.0",
+  "requiresMemory": true,
+  "capabilities": [
+    "Manage recurring subscription billing and plan tiers.",
+    "Handle plan upgrades and downgrades."
+  ],
+  "constraints": [
+    "Never charge a payment method without the user's prior consent.",
+    "Always provide a clear cancellation path."
+  ]
+}

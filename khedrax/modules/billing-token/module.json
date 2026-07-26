@@ -1,0 +1,11 @@
+{
+  "name": "billing-token",
+  "version": "1.0.0",
+  "capabilities": [
+    "Bill using a fungible token on a configured blockchain network."
+  ],
+  "constraints": [
+    "Never move tokens without an explicit, user-authorized transaction.",
+    "Always surface the exact token amount and network fee before a charge."
+  ]
+}

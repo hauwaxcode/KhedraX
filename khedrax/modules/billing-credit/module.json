@@ -1,0 +1,12 @@
+{
+  "name": "billing-credit",
+  "version": "1.0.0",
+  "requiresMemory": true,
+  "capabilities": [
+    "Manage a prepaid credit balance and deduct usage from it."
+  ],
+  "constraints": [
+    "Never let a balance go negative without explicit overdraft configuration.",
+    "Always notify the user before their balance is exhausted."
+  ]
+}

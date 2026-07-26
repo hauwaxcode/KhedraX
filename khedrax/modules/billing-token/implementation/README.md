@@ -1,0 +1,1 @@
+Billing-token module v1 scaffold — configuration and prompt fragment only; no runtime implementation yet. On-chain transaction receipts are the record for this module rather than a generated invoice template.

@@ -1,0 +1,12 @@
+{
+  "name": "billing-usage",
+  "version": "1.0.0",
+  "requiresMemory": true,
+  "capabilities": [
+    "Meter and bill based on measured usage volume."
+  ],
+  "constraints": [
+    "Never bill for usage that wasn't actually metered and logged.",
+    "Always make current usage and running cost visible to the user."
+  ]
+}

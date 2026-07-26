@@ -1,0 +1,5 @@
+{
+  "billingCycle": "monthly",
+  "tiers": ["basic", "pro", "enterprise"],
+  "gracePeriodDays": 3
+}

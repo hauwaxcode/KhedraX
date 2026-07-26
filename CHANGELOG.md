@@ -3,6 +3,11 @@
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct
 from KhedraX's own code release history.
 
+## v1.7 — Billing & monetization registry growth
+
+- Work package: WP17
+- Added eight new billing modules under `khedrax/modules/` with module-scaffold files only: `billing-free`, `billing-subscription`, `billing-usage`, `billing-credit`, `billing-token`, `billing-nft`, `billing-enterprise`, and `billing-hybrid`. Added module prompt fragments, configuration defaults, implementation scaffolds, tests scaffolds, and invoice/receipt-style templates for the billing models that need them. Added a billing-models reference document and regression tests covering single-module generation and multi-module composition with no engine or DNA changes.
+
 ## v1.6 — Interface Engine: web, Discord, Telegram, and admin dashboard scaffolds
 
 - Work package: WP16

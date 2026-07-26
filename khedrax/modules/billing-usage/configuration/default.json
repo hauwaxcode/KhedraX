@@ -1,0 +1,5 @@
+{
+  "billingCycle": "monthly",
+  "unitRate": 1,
+  "meteringWindow": "daily"
+}

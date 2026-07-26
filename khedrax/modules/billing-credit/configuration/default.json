@@ -1,0 +1,5 @@
+{
+  "initialCredit": 0,
+  "overdraftAllowed": false,
+  "lowBalanceThreshold": 10
+}

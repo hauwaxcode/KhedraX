@@ -1,0 +1,12 @@
+{
+  "name": "billing-enterprise",
+  "version": "1.0.0",
+  "requiresMemory": true,
+  "capabilities": [
+    "Support custom contract terms and invoiced billing cycles."
+  ],
+  "constraints": [
+    "Never deviate from a signed contract's agreed terms without renegotiation.",
+    "Always route enterprise billing questions to a human account manager."
+  ]
+}

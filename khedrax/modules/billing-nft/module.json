@@ -1,0 +1,11 @@
+{
+  "name": "billing-nft",
+  "version": "1.0.0",
+  "capabilities": [
+    "Gate access or features based on NFT ownership."
+  ],
+  "constraints": [
+    "Never assume NFT ownership without verifying it on-chain.",
+    "Never mint or transfer an NFT without explicit user authorization."
+  ]
+}

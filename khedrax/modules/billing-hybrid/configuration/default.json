@@ -1,0 +1,5 @@
+{
+  "primaryModel": "subscription",
+  "secondaryModel": "usage",
+  "itemizationRequired": true
+}

@@ -1,0 +1,5 @@
+{
+  "walletRoutingRequired": true,
+  "tokenSymbolPlaceholder": "TOKEN",
+  "networkPlaceholder": "example-network"
+}

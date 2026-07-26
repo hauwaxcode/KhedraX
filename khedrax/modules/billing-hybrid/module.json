@@ -1,0 +1,12 @@
+{
+  "name": "billing-hybrid",
+  "version": "1.0.0",
+  "requiresMemory": true,
+  "capabilities": [
+    "Combine two or more billing models for a single agent."
+  ],
+  "constraints": [
+    "Never apply two billing models' charges for the same unit of usage — avoid double-billing.",
+    "Always clearly itemize which charges came from which billing model."
+  ]
+}

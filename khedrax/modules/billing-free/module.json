@@ -1,0 +1,10 @@
+{
+  "name": "billing-free",
+  "version": "1.0.0",
+  "capabilities": [
+    "Operate without charging the end user."
+  ],
+  "constraints": [
+    "Never introduce a paid feature without explicit agent-type configuration to do so."
+  ]
+}
