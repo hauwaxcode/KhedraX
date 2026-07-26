@@ -28,11 +28,13 @@ export class InterfaceEngine implements ProducerEngine {
     const adminIndexPath = path.join(interfaceDir, 'index.html');
     if (await this.fileExists(adminIndexPath)) {
       const template = await fs.readFile(adminIndexPath, 'utf8');
+      const personaLabel = dna.persona.presetName ?? 'none';
+      const modulesLabel = dna.modules.length > 0 ? dna.modules.join(', ') : 'none';
       const rendered = template
         .replace(/\{\{name\}\}/g, dna.name)
         .replace(/\{\{type\}\}/g, dna.agent.type)
-        .replace(/\{\{persona\}\}/g, dna.persona.presetName ?? 'custom')
-        .replace(/\{\{modules\}\}/g, dna.modules.join(', '));
+        .replace(/\{\{persona\}\}/g, personaLabel)
+        .replace(/\{\{modules\}\}/g, modulesLabel);
       await fs.writeFile(adminIndexPath, rendered);
     }
   }

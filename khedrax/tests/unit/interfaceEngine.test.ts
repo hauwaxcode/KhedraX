@@ -70,6 +70,29 @@ test('validation warns when an interface pairs with a missing module and generat
   assert.equal(validation.valid, true);
 });
 
+test('interface engine renders none for absent persona and modules', async () => {
+  const registry = await getRegistrySnapshot(khedraxRoot);
+  const dna = await buildAgentDNA({
+    name: 'MinimalAdmin',
+    type: 'basic',
+    outputDir: '/tmp/out',
+    modules: [],
+    force: false,
+    verbose: false,
+    interface: 'admin',
+  }, registry);
+  const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-interface-minimal-admin-'));
+  const tempDir = path.join(workspace, 'temp');
+  await fs.mkdir(tempDir, { recursive: true });
+  await new TemplateEngine().run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+
+  const engine = new InterfaceEngine();
+  await engine.run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+  const dashboardHtml = await fs.readFile(path.join(tempDir, 'interface', 'index.html'), 'utf8');
+  assert.match(dashboardHtml, /Persona: none/);
+  assert.match(dashboardHtml, /Modules: none/);
+});
+
 test('interface engine renders admin dashboard content from actual dna values', async () => {
   const registry = await getRegistrySnapshot(khedraxRoot);
   const dna = await buildAgentDNA({
