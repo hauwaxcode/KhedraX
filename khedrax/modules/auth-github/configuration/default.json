@@ -1,0 +1,4 @@
+{
+  "clientIdEnvVar": "GITHUB_CLIENT_ID",
+  "clientSecretEnvVar": "GITHUB_CLIENT_SECRET"
+}

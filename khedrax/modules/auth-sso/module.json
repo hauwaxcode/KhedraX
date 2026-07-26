@@ -1,0 +1,12 @@
+{
+  "name": "auth-sso",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via a configured enterprise SSO provider (SAML/OIDC).",
+    "Support just-in-time user provisioning on first login."
+  ],
+  "constraints": [
+    "Never bypass the configured SSO provider's own session/token validation.",
+    "Always route SSO configuration issues to a human administrator rather than guessing."
+  ]
+}

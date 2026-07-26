@@ -1,0 +1,12 @@
+{
+  "name": "auth-siwe",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via Sign-In With Ethereum (EIP-4361).",
+    "Verify a signed message against the claimed wallet address."
+  ],
+  "constraints": [
+    "Never accept a signature without verifying it against the exact expected message and nonce.",
+    "Never treat wallet ownership alone as proof of any off-chain identity claim."
+  ]
+}

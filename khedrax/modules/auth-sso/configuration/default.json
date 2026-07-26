@@ -1,0 +1,4 @@
+{
+  "protocol": "saml",
+  "metadataUrlEnvVar": "SSO_METADATA_URL"
+}

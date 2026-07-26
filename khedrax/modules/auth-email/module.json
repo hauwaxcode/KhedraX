@@ -1,0 +1,12 @@
+{
+  "name": "auth-email",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via email and password.",
+    "Support password reset via email verification link."
+  ],
+  "constraints": [
+    "Never store a password in plaintext.",
+    "Never send a password reset link to an unverified email address."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "auth-telegram",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via Telegram Login Widget.",
+    "Verify the authenticity of Telegram login data using the bot token hash check."
+  ],
+  "constraints": [
+    "Never accept Telegram login data without verifying its hash signature.",
+    "Never store the user's Telegram credentials directly."
+  ]
+}

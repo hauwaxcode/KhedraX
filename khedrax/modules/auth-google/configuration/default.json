@@ -1,0 +1,5 @@
+{
+  "clientIdEnvVar": "GOOGLE_CLIENT_ID",
+  "clientSecretEnvVar": "GOOGLE_CLIENT_SECRET",
+  "redirectUriPlaceholder": "https://your-app.example/auth/google/callback"
+}

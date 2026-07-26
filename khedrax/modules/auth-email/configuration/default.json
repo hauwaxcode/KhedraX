@@ -1,0 +1,4 @@
+{
+  "passwordResetTokenTtlMinutes": 60,
+  "requireEmailVerification": true
+}

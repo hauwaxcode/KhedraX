@@ -1,0 +1,12 @@
+{
+  "name": "auth-discord",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via Discord OAuth.",
+    "Verify server membership or role for authorization decisions."
+  ],
+  "constraints": [
+    "Never request more Discord OAuth scopes than the agent actually needs.",
+    "Never store the user's Discord credentials directly \u2014 only the issued token."
+  ]
+}

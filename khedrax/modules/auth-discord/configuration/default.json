@@ -1,0 +1,4 @@
+{
+  "clientIdEnvVar": "DISCORD_CLIENT_ID",
+  "clientSecretEnvVar": "DISCORD_CLIENT_SECRET"
+}

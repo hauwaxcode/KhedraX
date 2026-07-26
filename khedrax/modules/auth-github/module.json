@@ -1,0 +1,12 @@
+{
+  "name": "auth-github",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via GitHub OAuth.",
+    "Optionally retrieve the user's public repository access for authorization decisions."
+  ],
+  "constraints": [
+    "Never request organization-wide GitHub permissions unless explicitly required.",
+    "Never store the user's GitHub credentials directly \u2014 only the issued token."
+  ]
+}

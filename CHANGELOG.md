@@ -3,6 +3,11 @@
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct
 from KhedraX's own code release history.
 
+## v1.8 — Authentication registry growth
+
+- Work package: WP18
+- Added seven new authentication provider modules under `khedrax/modules/` with module-scaffold files only: `auth-email`, `auth-google`, `auth-github`, `auth-discord`, `auth-telegram`, `auth-siwe`, and `auth-sso`. Added prompt fragments, configuration defaults, implementation scaffolds, and test scaffolds for each provider without changing any engine or DNA schema. Added an authentication providers reference document and regression tests covering single-module generation, multi-provider composition, and mixed auth/billing/memory composition.
+
 ## v1.7 — Billing & monetization registry growth
 
 - Work package: WP17

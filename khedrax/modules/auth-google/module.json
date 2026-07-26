@@ -1,0 +1,12 @@
+{
+  "name": "auth-google",
+  "version": "1.0.0",
+  "capabilities": [
+    "Authenticate users via Google OAuth.",
+    "Retrieve basic profile information (name, email) upon consent."
+  ],
+  "constraints": [
+    "Never request more OAuth scopes than the agent actually needs.",
+    "Never store the user's Google credentials directly \u2014 only the issued token."
+  ]
+}
