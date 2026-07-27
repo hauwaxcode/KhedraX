@@ -1,5 +1,5 @@
 # KhedraX Architectural Constitution
-### v1.8
+### v1.9
 
 This document is the single source of truth for KhedraX engineering decisions.
 Every implementation prompt, PR, and generated artifact must comply with it.

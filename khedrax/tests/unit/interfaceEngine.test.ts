@@ -93,6 +93,50 @@ test('interface engine renders none for absent persona and modules', async () =>
   assert.match(dashboardHtml, /Modules: none/);
 });
 
+test('interface engine renders billing and authentication sections only when relevant modules are present', async () => {
+  const registry = await getRegistrySnapshot(khedraxRoot);
+
+  const renderDashboard = async (modules: string[]) => {
+    const dna = await buildAgentDNA({
+      name: 'ScenarioBot',
+      type: 'basic',
+      outputDir: '/tmp/out',
+      modules,
+      force: false,
+      verbose: false,
+    }, registry);
+    dna.interface = { type: 'admin' };
+
+    const workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'khedrax-interface-scenario-'));
+    const tempDir = path.join(workspace, 'temp');
+    await fs.mkdir(tempDir, { recursive: true });
+    await new TemplateEngine().run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+
+    const engine = new InterfaceEngine();
+    await engine.run({ dna, registry, tempDir, artifacts: {}, khedraxRootDir: khedraxRoot });
+    return fs.readFile(path.join(tempDir, 'interface', 'index.html'), 'utf8');
+  };
+
+  const billingHtml = await renderDashboard(['billing-subscription', 'memory']);
+  assert.match(billingHtml, /<h2>Billing<\/h2>/);
+  assert.match(billingHtml, /billing-subscription/);
+  assert.doesNotMatch(billingHtml, /<h2>Authentication<\/h2>/);
+
+  const authHtml = await renderDashboard(['auth-google', 'auth-siwe']);
+  assert.match(authHtml, /<h2>Authentication<\/h2>/);
+  assert.match(authHtml, /auth-google/);
+  assert.match(authHtml, /auth-siwe/);
+  assert.doesNotMatch(authHtml, /<h2>Billing<\/h2>/);
+
+  const bothHtml = await renderDashboard(['billing-subscription', 'auth-google', 'auth-siwe']);
+  assert.match(bothHtml, /<h2>Billing<\/h2>/);
+  assert.match(bothHtml, /<h2>Authentication<\/h2>/);
+
+  const neitherHtml = await renderDashboard([]);
+  assert.doesNotMatch(neitherHtml, /<h2>Billing<\/h2>/);
+  assert.doesNotMatch(neitherHtml, /<h2>Authentication<\/h2>/);
+});
+
 test('interface engine renders admin dashboard content from actual dna values', async () => {
   const registry = await getRegistrySnapshot(khedraxRoot);
   const dna = await buildAgentDNA({

@@ -3,6 +3,11 @@
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct
 from KhedraX's own code release history.
 
+## v1.9 — Admin dashboard billing/auth enrichment
+
+- Work package: WP19
+- Enriched the built-in admin interface template rendered by Interface Engine so it now surfaces billing and authentication modules when present, while omitting those sections entirely when they are not relevant. Added a short WP19 admin-dashboard reference document and regression tests covering billing-only, auth-only, both, and neither cases. Updated the architecture version headers in `KHEDRAX_CONSTITUTION.md` and `SYSTEM_ARCHITECTURE.md` together.
+
 ## v1.8 — Authentication registry growth
 
 - Work package: WP18
