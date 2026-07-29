@@ -2,6 +2,10 @@
 
 Tracks architecture version changes, per `VERSIONING_POLICY.md`. Distinct from KhedraX's own code release history.
 
+## v1.10 — Skill packs and post-generation module addition
+- Work package: WP22
+- Added three real-world skill-pack modules under `khedrax/modules/` (`faq-support`, `onboarding-flow`, and `incident-runbook`) with populated implementation content and prompt/docs scaffolding, proving that the module system can carry genuine knowledge content without any engine or DNA schema changes. Added a new `khedrax add-module <projectPath> <moduleName>` CLI command that reuses Module Engine, Prompt Engine, and Documentation Engine rendering logic against an existing generated project directory, updates the project's `agent.yaml`, `prompts/README.md`, and `docs/README.md`, and uses the shared duplicate-module and exclusive-prompt-section checks already implemented by Validation Engine and Prompt Engine. Added reference documentation in `docs/SKILL_PACKS.md` and regression tests for generation-time skill-pack modules and post-generation module addition.
+
 ## v1.9 — Admin dashboard billing/auth enrichment
 - Work package: WP19
 - Enriched the built-in admin interface template rendered by Interface Engine so it now surfaces billing and authentication modules when present, while omitting those sections entirely when they are not relevant. Added a short WP19 admin-dashboard reference document and regression tests covering billing-only, auth-only, both, and neither cases. Updated the architecture version headers in `KHEDRAX_CONSTITUTION.md` and `SYSTEM_ARCHITECTURE.md` together.

@@ -1,0 +1,10 @@
+{
+  "name": "onboarding-flow",
+  "version": "1.0.0",
+  "capabilities": [
+    "Guide new users through a step-by-step onboarding process."
+  ],
+  "constraints": [
+    "Never skip verification steps or assume a user has completed setup without explicit confirmation."
+  ]
+}

@@ -8,9 +8,16 @@ export class ModuleEngine implements ProducerEngine {
   async run(context: GenerationContext): Promise<ProducerResult> {
     const resolvedModules = context.dna.modules.filter((moduleName) => context.registry.modules[moduleName]);
     const targetDir = context.tempDir;
+    return this.renderModulesToDir(resolvedModules, context.registry, targetDir);
+  }
+
+  async renderModulesToDir(resolvedModules: string[], registry: GenerationContext['registry'], targetDir: string): Promise<ProducerResult> {
 
     for (const moduleName of resolvedModules) {
-      const moduleDescriptor = context.registry.modules[moduleName];
+      const moduleDescriptor = registry.modules[moduleName];
+      if (!moduleDescriptor) {
+        continue;
+      }
       const sourceDir = moduleDescriptor.path;
       const entries = ['implementation', 'configuration', 'prompts', 'tests'];
       for (const entry of entries) {
@@ -27,7 +34,7 @@ export class ModuleEngine implements ProducerEngine {
       }
     }
 
-    return { artifacts: { resolvedModules, resolvedModuleDescriptors: resolvedModules.map((moduleName) => context.registry.modules[moduleName]).filter(Boolean) } };
+    return { artifacts: { resolvedModules, resolvedModuleDescriptors: resolvedModules.map((moduleName) => registry.modules[moduleName]).filter(Boolean) } };
   }
 }
 

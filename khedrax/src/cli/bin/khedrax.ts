@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import { createAgent } from '../commands/create.ts';
+import { addModule } from '../addModule.ts';
 import { checkNodeVersion } from '../utils/nodeVersion.ts';
 import { runDeploymentScript } from '../deploymentLauncher.ts';
 
@@ -87,6 +88,23 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (command === 'add-module') {
+    if (!target || !rest[0]) {
+      console.error('Usage: khedrax add-module <projectPath> <moduleName>');
+      process.exit(1);
+    }
+
+    const projectPath = path.resolve(process.cwd(), target);
+    const moduleName = rest[0];
+    try {
+      await addModule(projectPath, moduleName, process.cwd());
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+    return;
+  }
+
   if (deploymentActions.includes(command as typeof deploymentActions[number])) {
     if (!target) {
       console.error(`Usage: khedrax ${command} <projectPath>`);
@@ -98,7 +116,7 @@ async function main(): Promise<void> {
     process.exit(exitCode);
   }
 
-  console.error('Usage: khedrax create <Name> | khedrax <deploy|status|logs|rollback|destroy|update> <projectPath>');
+  console.error('Usage: khedrax create <Name> | khedrax add-module <projectPath> <moduleName> | khedrax <deploy|status|logs|rollback|destroy|update> <projectPath>');
   process.exit(1);
 }
 

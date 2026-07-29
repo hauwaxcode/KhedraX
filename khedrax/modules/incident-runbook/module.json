@@ -1,0 +1,10 @@
+{
+  "name": "incident-runbook",
+  "version": "1.0.0",
+  "capabilities": [
+    "Guide incident triage and response with a verified checklist."
+  ],
+  "constraints": [
+    "Never declare the incident resolved without confirming mitigation and monitoring."
+  ]
+}

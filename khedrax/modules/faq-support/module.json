@@ -1,0 +1,10 @@
+{
+  "name": "faq-support",
+  "version": "1.0.0",
+  "capabilities": [
+    "Answer common support questions from a curated FAQ."
+  ],
+  "constraints": [
+    "Never answer from the FAQ content if the question falls outside what it actually covers — escalate instead of guessing."
+  ]
+}

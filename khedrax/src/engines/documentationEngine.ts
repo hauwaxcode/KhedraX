@@ -12,14 +12,18 @@ export class DocumentationEngine implements ProducerEngine {
   name = 'documentation';
 
   async run(context: GenerationContext): Promise<ProducerResult> {
-    const behavioralProfile = (context.artifacts.persona as { behavioralProfile?: {
+    return this.renderDocumentation(context.tempDir, context.dna, context.artifacts);
+  }
+
+  async renderDocumentation(targetDir: string, dna: GenerationContext['dna'], artifacts: GenerationContext['artifacts']): Promise<ProducerResult> {
+    const behavioralProfile = (artifacts.persona as { behavioralProfile?: {
       tone: string;
       traits: string[];
       constraints: string[];
       escalationPolicy?: string;
       capabilities: Array<{ moduleName: string; description: string }>;
     } } | undefined)?.behavioralProfile;
-    const moduleArtifact = context.artifacts.module as {
+    const moduleArtifact = artifacts.module as {
       resolvedModules?: string[];
       resolvedModuleDescriptors?: ModuleArtifact[];
     } | undefined;
@@ -32,15 +36,15 @@ export class DocumentationEngine implements ProducerEngine {
       constraints: module.constraints ?? [],
     }));
 
-    const rootReadmePath = path.join(context.tempDir, 'README.md');
-    const docsReadmePath = path.join(context.tempDir, 'docs', 'README.md');
+    const rootReadmePath = path.join(targetDir, 'README.md');
+    const docsReadmePath = path.join(targetDir, 'docs', 'README.md');
 
     const personaLine = this.renderPersonaLine(behavioralProfile);
     const modulesBlock = this.renderRootModules(resolvedModules);
     const rootContent = [
-      `# ${context.dna.name}`,
-      context.dna.description || '',
-      `**Type:** ${context.dna.agent.type}`,
+      `# ${dna.name}`,
+      dna.description || '',
+      `**Type:** ${dna.agent.type}`,
       personaLine,
       '## Modules',
       modulesBlock,
@@ -48,7 +52,7 @@ export class DocumentationEngine implements ProducerEngine {
     ].filter((line) => line !== '').join('\n\n') + '\n';
 
     const docsContent = [
-      `# ${context.dna.name} — Agent Overview`,
+      `# ${dna.name} — Agent Overview`,
       '',
       '## Persona',
       `- Tone: ${behavioralProfile?.tone ?? 'neutral'}`,
